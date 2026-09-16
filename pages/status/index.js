@@ -1,5 +1,7 @@
 import DefaultLayout from 'infra/interfaces/DefaultLayout';
 import useSWR from 'swr';
+import { Banner, Heading, Stack } from '@primer/react';
+import { Card } from '@primer/react/experimental';
 
 async function fetchAPI(key) {
   const response = await fetch(key);
@@ -8,13 +10,15 @@ async function fetchAPI(key) {
 }
 export default function StatusPage() {
   return (
-    <DefaultLayout>
+    <DefaultLayout contentWidth="medium">
       <div align="center">
-        <h1>Health Check</h1>
-        <h3>Status</h3>
+        <Heading variant="large">Health Check</Heading>
+        <Heading variant="medium">Status</Heading>
         <UpdateAt />
-        <h3> Dados do Banco</h3>
-        <BaseData />
+        <Stack>
+          <Heading variant="medium">Dados do Banco</Heading>
+          <BaseData />
+        </Stack>
       </div>
     </DefaultLayout>
   );
@@ -26,7 +30,14 @@ function UpdateAt() {
   if (!isLoading) {
     updateAtText = new Date(data.update_at).toLocaleString('pt-BR');
   }
-  return <div>Última atualização: {updateAtText}</div>;
+  return (
+    <Banner layout="compact">
+      <Banner.Title></Banner.Title>
+      <Banner.Description>
+        Última atualização: {updateAtText}
+      </Banner.Description>
+    </Banner>
+  );
 }
 
 function BaseData() {
@@ -42,17 +53,31 @@ function BaseData() {
     maxConnections = data.database?.max_connections || 'Não disponível';
   }
 
+  if (isLoading || !data) return;
+
   return (
-    <>
-      {isLoading ? (
-        <p>Carregando dados do banco...</p>
-      ) : (
-        <div>
-          <p>Versão: {baseVersion}</p>
-          <p>Usuários ativos: {activeUsers}</p>
-          <p>Máximo de conexões: {maxConnections}</p>
-        </div>
-      )}
-    </>
+    <Stack direction={{ narrow: 'vertical', regular: 'horizontal' }}>
+      <Stack.Item grow>
+        <Card>
+          <Card.Heading>Versão</Card.Heading>
+          <Card.Description>{baseVersion}</Card.Description>
+          <Card.Metadata>Uso neste instante</Card.Metadata>
+        </Card>
+      </Stack.Item>
+      <Stack.Item grow>
+        <Card>
+          <Card.Heading>Usuários ativos</Card.Heading>
+          <Card.Description>{activeUsers}</Card.Description>
+          <Card.Metadata>Uso neste instante</Card.Metadata>
+        </Card>
+      </Stack.Item>
+      <Stack.Item grow>
+        <Card>
+          <Card.Heading>Máximo de conexões</Card.Heading>
+          <Card.Description>{maxConnections}</Card.Description>
+          <Card.Metadata>Uso neste instante</Card.Metadata>
+        </Card>
+      </Stack.Item>
+    </Stack>
   );
 }
